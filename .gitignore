@@ -4,3 +4,6 @@ credentials.sh
 *.rdb
 *.log
 *.pid
+certs/*.crt
+certs/*.key
+.env

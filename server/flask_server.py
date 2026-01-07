@@ -527,6 +527,16 @@ if __name__ == '__main__':
     app.debug = False
     app.trace = False
     app.wsgi = False
+    ssl_context = None
+    cert_path = os.environ.get('SSL_CERT')
+    key_path = os.environ.get('SSL_KEY')
+
+    if cert_path and key_path:
+        if os.path.exists(cert_path) and os.path.exists(key_path):
+            ssl_context = (cert_path, key_path)
+        else:
+            print 'WARNING: SSL_CERT or SSL_KEY not found, starting without TLS'
+
     for arg in sys.argv[1:]:
         if arg == '--debug':
             app.debug = True
@@ -534,11 +544,11 @@ if __name__ == '__main__':
             app.trace = True
     if app.debug:
         print 'debug  mode'
-        app.run(threaded=False, debug=True)
+        app.run(threaded=False, debug=True, ssl_context=ssl_context)
     elif app.wsgi:
         from gevent.wsgi import WSGIServer
         print 'prod  mode'
         http_server = WSGIServer(('', 5000), app)
         http_server.serve_forever()
     else:
-        app.run(threaded=True, debug=False)
+        app.run(threaded=True, debug=False, ssl_context=ssl_context)
